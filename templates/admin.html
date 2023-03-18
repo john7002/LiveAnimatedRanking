@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <title>Notation Jury</title>
+
+  </head>
+<body>
+
+ <form action="{{ url_for('handle_admin') }}" method="post">
+<!--  <form action="http://0.0.0.0:5000/handle_data" method="post"> -->
+
+  <div class="form-group">
+    <label for="exampleSelect2">Equipe</label>
+    <select class="form-control" name="equipes">
+      <option value="0">Inspecteur Gasdget</option>
+      <option value="1">Cat's Eye</option>
+      <option value="2">Sailor Moon</option>
+      <option value="3">Tom Sawyer</option>
+      <option value="4">Les Chevaliers du Zodiaque</option>
+      <option value="5">Ulysse 31</option>
+      <option value="6">Dragon Ball Z</option>
+      <option value="7">Goldorak</option>
+      <option value="8">Tortues Ninja</option>
+      <option value="9">Ken le Survivant</option>
+      <option value="10">Olive et Tom</option>
+      <option value="11">Candy</option>
+      <option value="12">Les Minipouces</option>
+      <option value="13">Ulysse 31</option>
+      <option value="14">Helene et les garcons</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="exampleSelect3">Points</label>
+    <input type="text" class="form-control" name="points">
+  </div>
+
+<input type = "submit"/>
+
+</form>
+
+</body>
+</html>

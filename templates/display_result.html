@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <title>Details results</title>
+
+  </head>
+<body>
+
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">IP juge</th>
+      <th scope="col">Jeux</th>
+      <th scope="col">Equipe</th>
+      <th scope="col">Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in data %}
+   <tr>
+     {% for d in line %}
+     <!-- <th scope="row">1</th> -->
+     <td>{{ d }}</td>
+     {% endfor %}
+   </tr>
+   {% endfor %}
+
+ </tbody>
+</table>
+
+
+</body>
+
+
+
+
+
+</html>
