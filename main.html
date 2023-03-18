@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <!-- <script type="text/javascript" src="essai2.js"></script> -->
+    <link rel="stylesheet" type="text/css" href="essai.css" />
+    <script type="application/javascript">
+
+        var Height = document.documentElement.scrollHeight;
+        var currentHeight = 0;
+        var bool = true;
+        var step = 5;
+
+    </script>
+
+
+
+
+</head>
+
+<body>
+
+    <div id="ranking"></div>
+    <template id="ranking-item">
+        <div class="ranking-item" data-user-id="{{userId}}">
+            <div class="ranking-item-order">{{order}}</div>
+            <div class="ranking-item-userName">{{userName}}</div>
+            <div class="ranking-item-score">{{score}}</div>
+        </div>
+    </template>
+
+
+
+
+    <script>
+        const {ipcRenderer} = require('electron');
+        ipcRenderer.on('some_js_Method', (event, message) => {
+            console.log(message.equipe);
+            console.log(message.points);
+            update_rank(message.equipe, message.points);
+        });
+    </script>
+
+
+
+
+    <script>
+        var app;
+        window.addEventListener('DOMContentLoaded', function () {
+            app = new RankingApp('#ranking').start();
+        });
+
+        function update_score(team_id, point_scored) {
+            for (var i = 0; i < app.ranking.items.length; i++) {
+                //console.log(app.ranking.items[i]);
+                if (team_id == app.ranking.items[i].userId) {
+                    app.ranking.items[i].score += parseInt(point_scored);
+                    //console.log(app.ranking.items[i].score);
+                }
+            }
+
+        }
+
+
+        function update_position(team_id) {
+            var current_item;
+            for (var i = 0; i < app.ranking.items.length; i++) {
+                if (team_id == app.ranking.items[i].userId) {
+                    break;
+                }
+            }
+            for (var j = 0; j < app.ranking.items.length; j++) {
+                if (i == j) {
+                    break;
+                }
+                if ((app.ranking.items[i].score > app.ranking.items[j].score)) {
+                    console.log("mouvement");
+                    app.ranking.move(app.ranking.items[i], j + 1);
+                    break;
+                }
+            }
+        }
+
+
+        function update_rank(id, score) {
+            update_score(id, score);
+            update_position(id);
+        }
+
+
+        function createTeamItem(name, id) {
+            var i = 0, iz = 0,
+                userName = '',
+                item = new RankingItem();
+
+            item.userId = id;
+            userName = name;
+
+            item.userName = userName;
+            item.score = 0;
+            return item;
+        }
+
+        function create_teams() {
+            app.ranking.insert(createTeamItem("Davy Crockett", 0), 1);
+            app.ranking.insert(createTeamItem("Billy the kid", 1), 2);
+            app.ranking.insert(createTeamItem("Buffalo Bill", 2), 3);
+            app.ranking.insert(createTeamItem("Tuniques Bleues", 3), 4);
+            app.ranking.insert(createTeamItem("Daltons", 4), 5);
+            app.ranking.insert(createTeamItem("Yakari", 5), 6);
+            app.ranking.insert(createTeamItem("Cheyennes", 6), 7);
+            app.ranking.insert(createTeamItem("Apaches", 7), 8);
+            app.ranking.insert(createTeamItem("Iroquois", 8), 9);
+            app.ranking.insert(createTeamItem("Sioux", 9), 10);
+            app.ranking.insert(createTeamItem("Navajo", 10), 11);
+            app.ranking.insert(createTeamItem("Visages pâles", 11), 12);
+            app.ranking.insert(createTeamItem("Peaux Rouges", 12), 13);
+            app.ranking.insert(createTeamItem("Calamity Jane", 13), 14);
+
+        }
+
+        setTimeout(function () {
+            create_teams();
+        }, 500);
+    </script>
+
+</body>
+
+</html>
