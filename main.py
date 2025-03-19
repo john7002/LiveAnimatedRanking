@@ -12,18 +12,27 @@ from flask import Flask
 from flask import request
 from flask import make_response
 from flask import render_template
+from flask_socketio import SocketIO, emit
 
 import requests
 
 # Flask app should start in global layout
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = 'secret!'
 
-dict_team = {"0": "Davy Crockett","1": "Billy the kid", "2": "Buffalo Bill", "3": "Tuniques Bleues", "4": "Daltons",
-             "5": "Yakari", "6": "Cheyennes", "7": "Apaches", "8": "Iroquois",
-             "9": "Sioux", "10": "Navajo", "11": "Visages pâles", "12": "Peaux Rouges",
-             "13": "Calamity Jane", "14": "Ulysse 31", "15": "Helene et les garcons"}
+socketio = SocketIO(app, cors_allowed_origins="*")#, async_mode='eventlet')
+
+
+
+
+dict_team = {"0": "Les Daisy","1": "Les Golden Boy", "2": "Les flappers", "3": "Les wolf pack", "4": "Les peaky blinders",
+             "5": "La black mafia", "6": "Les Miami boys", "7": "Les faucheurs de Long Island", "8": "Charleston mob",
+             "9": "Les fantômes de gasby", "10": "Baltimore crew", "11": "Jazmafia", "12": "Dickson blood",
+             "13": "Dycksy mafia", "14": "Le gang d'Eddy Nach", "15": "Chipiro brothers"}
 global conn
+
+
 
 
 @app.route('/handle_data', methods=['POST'])
@@ -32,45 +41,38 @@ def handle_data():
     jeux = request.form['jeux']
     equipes = request.form['equipes']
     points = request.form['points']
-    #juge_ip = request.environ['REMOTE_ADDR']
 
     print(f"{jeux},{equipes},{points}")
 
-    url = "http://localhost:3000"
-    data = {"equipe": equipes, "points": points}
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    print("poste message")
-
     cursor = conn.cursor()
-
-    print(jeux)
-    print(equipes)
-
     cursor.execute(
-        """SELECT id,jeux,equipe,points FROM tournament WHERE jeux= ? AND equipe = ? """, (jeux, dict_team[equipes]))
+        """SELECT id,jeux,equipe,points FROM tournament 
+        WHERE jeux= ? AND equipe = ? """, 
+        (jeux, dict_team[equipes])
+    )
 
     rows = cursor.fetchall()
 
-    print(f'on lit {len(rows)}')
-
     if len(rows) == 0:
-        try:
-            r = requests.post(url, data=json.dumps(data),
-                              headers=headers, timeout=5)
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
-            print(e)
-            sys.exit(1)
-        except requests.exceptions.ReadTimeout as e:
-            print(e)
+        # Émission unique avec syntaxe corrigée
+        socketio.emit('score_update', {
+            'equipe': equipes,
+            'points': points
+        }, broadcast=True)  # Pas de '=True' ici
+        
         conn.execute("""
-            INSERT INTO tournament(jeux,equipe,points) VALUES(?,?,?)""", (jeux, dict_team[equipes], points))
+            INSERT INTO tournament(jeux,equipe,points) 
+            VALUES(?,?,?)""", 
+            (jeux, dict_team[equipes], points))
         success = 1
     else:
-        print("already score for this team on this game")
+        print("Score déjà existant")
         success = 2
 
     conn.commit()
     return render_template('mobile_jury.html', success=success, jeux=jeux)
+
+
 
 
 @app.route('/handle_admin', methods=['POST'])
@@ -79,17 +81,10 @@ def handle_admin():
     points = request.form['points']
     print("on a {0} -- {1}".format(equipes, points))
 
-    try:
-        data = {"equipe": equipes, "points": points}
-        headers = {"Content-type": "application/json", "Accept": "text/plain"}
-        url = "http://localhost:3000"
-        r = requests.post(url, data=json.dumps(data),
-                          headers=headers, timeout=5)
-    except requests.exceptions.RequestException as e:  # This is the correct syntax
-        print(e)
-        sys.exit(1)
-    except requests.exceptions.ReadTimeout as e:
-        print(e)
+    socketio.emit('score_update', {
+            'equipe': equipes,
+            'points': points
+        }, broadcast=True)
 
     conn.execute("""
         INSERT INTO tournament(jeux,equipe,points) VALUES(?,?,?)""", ("correction", dict_team[equipes], points))
@@ -104,7 +99,7 @@ def webhook():
 @app.route('/jury/<page>')
 def mobile_jury(page):
 
-    if page in ['as', 'brute', 'bourricot', 'selle', 'tomahawk', 'soif', 'kwak', 'bandidos']:
+    if page in ['GoldTwister', 'peluche', 'pyramide', 'roulette', 'cocktail', 'parcours', 'cassetete', 'gonflable']:
         return render_template('mobile_jury.html', success=0, jeux=page)
     else:
         return 'no page found'
@@ -130,13 +125,32 @@ def rebuild_from_db():
     cursor.execute("""SELECT equipe,points FROM tournament""")
     rows = cursor.fetchall()
     for row in rows:
- 
-        print("on a {0} de type {1} et {2} de type {3}".format(dict_team.keys()[dict_team.values().index(
-            row[0])], type(dict_team.keys()[dict_team.values().index(row[0])]), row[1], type(row[1])))
+        team_name = [k for k, v in dict_team.items() if v == row[0]][0]
+    
+        print(f"On a {team_name} de type {type(team_name)} et {row[1]} de type {type(row[1])}")
+        
+        socketio.emit('score_update', {
+            'equipe': team_name,
+            'points': row[1]
+        }, broadcast=True)
 
         time.sleep(2)
 
     return "ok done !"
+
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+
+@app.route('/')
+def display_ranking():
+    return render_template('main.html')
+
+def send_score_update(equipe, points):
+    socketio.emit('score_update', {'equipe': equipe, 'points': points})
+
 
 
 if __name__ == '__main__':
@@ -161,8 +175,9 @@ if __name__ == '__main__':
         print('Erreur')
         conn.rollback()
 
-    port = int(os.getenv('PORT', 5002))
+    if __name__ == '__main__':
+        # pour la prod
+        socketio.run(app, host='0.0.0.0', port=5002, allow_unsafe_werkzeug=True)
+        #pour le test local
+        #socketio.run(app, host='0.0.0.0', port=5002)
 
-    print("Starting app on port", port)
-
-    app.run(debug=False, port=port, host='0.0.0.0')

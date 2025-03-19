@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/essai.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/essai2.js') }}"></script>
+    <script type="application/javascript">
+
+
+
+
+        var Height = document.documentElement.scrollHeight;
+        var currentHeight = 0;
+        var bool = true;
+        var step = 5;
+
+    </script>
+
+
+
+
+</head>
+
+<body>
+
+    <div id="ranking"></div>
+    <template id="ranking-item">
+        <div class="ranking-item" data-user-id="{{userId}}">
+            <div class="ranking-item-order">{{order}}</div>
+            <div class="ranking-item-userName">{{userName}}</div>
+            <div class="ranking-item-score">{{score}}</div>
+        </div>
+    </template>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('score_update', function (message) {
+            update_rank(message.equipe, message.points);
+        });
+
+        // Activer le plein écran au clic
+        document.addEventListener('click', function () {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            }
+        });
+    </script>
+
+
+    <script>
+        var app;
+        window.addEventListener('DOMContentLoaded', function () {
+            app = new RankingApp('#ranking').start();
+        });
+
+        function update_score(team_id, point_scored) {
+            for (var i = 0; i < app.ranking.items.length; i++) {
+                //console.log(app.ranking.items[i]);
+                if (team_id == app.ranking.items[i].userId) {
+                    app.ranking.items[i].score += parseInt(point_scored);
+                    //console.log(app.ranking.items[i].score);
+                }
+            }
+
+        }
+
+
+        function update_position(team_id) {
+            var current_item;
+            var current_index = -1;
+
+            // Trouver l'équipe et son index actuel
+            for (var i = 0; i < app.ranking.items.length; i++) {
+                if (team_id == app.ranking.items[i].userId) {
+                    current_item = app.ranking.items[i];
+                    current_index = i;
+                    break;
+                }
+            }
+
+            if (current_index === -1) return;
+
+            // Trouver la nouvelle position
+            var new_index = current_index;
+
+            // Monter si score plus élevé que les équipes au-dessus
+            for (var j = current_index - 1; j >= 0; j--) {
+                if (current_item.score > app.ranking.items[j].score) {
+                    new_index = j;
+                } else {
+                    break;
+                }
+            }
+
+            // Descendre si score plus bas que les équipes en-dessous
+            if (new_index === current_index) {
+                for (var j = current_index + 1; j < app.ranking.items.length; j++) {
+                    if (current_item.score < app.ranking.items[j].score) {
+                        new_index = j;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            // Déplacer si nécessaire
+            if (new_index !== current_index) {
+                app.ranking.move(current_item, new_index + 1); // +1 car l'index commence à 1
+            }
+        }
+
+
+        /*function update_rank(id, score) {
+            update_score(id, score);
+            update_position(id);
+        }*/
+
+        function update_rank(id, score) {
+            update_score(id, score);
+
+            // Ajouter une classe temporaire pour l'animation
+            const teamElement = document.querySelector(`[data-user-id="${id}"]`);
+            teamElement.classList.add('moving');
+
+            // Lancer la mise à jour de position
+            update_position(id);
+
+            // Retirer la classe après l'animation
+            setTimeout(() => {
+                teamElement.classList.remove('moving');
+            }, 500);
+        }
+
+
+        function createTeamItem(name, id) {
+            var i = 0, iz = 0,
+                userName = '',
+                item = new RankingItem();
+
+            item.userId = id;
+            userName = name;
+
+            item.userName = userName;
+            item.score = 0;
+            return item;
+        }
+
+        function create_teams() {
+            app.ranking.insert(createTeamItem("Les Daisy", 0), 1);
+            app.ranking.insert(createTeamItem("Les Golden Boy", 1), 2);
+            app.ranking.insert(createTeamItem("Les flappers", 2), 3);
+            app.ranking.insert(createTeamItem("Les wolf pack", 3), 4);
+            app.ranking.insert(createTeamItem("Les peaky blinders", 4), 5);
+            app.ranking.insert(createTeamItem("La black mafia", 5), 6);
+            app.ranking.insert(createTeamItem("Les Miami boys", 6), 7);
+            app.ranking.insert(createTeamItem("Les faucheurs de Long Island", 7), 8);
+            app.ranking.insert(createTeamItem("Charleston mob", 8), 9);
+            app.ranking.insert(createTeamItem("Les fantômes de gasby", 9), 10);
+            app.ranking.insert(createTeamItem("Baltimore crew", 10), 11);
+            app.ranking.insert(createTeamItem("Jazmafia", 11), 12);
+            app.ranking.insert(createTeamItem("Dickson blood", 12), 13);
+            app.ranking.insert(createTeamItem("Dycksy mafia", 13), 14);
+            app.ranking.insert(createTeamItem("Le gang d'Eddy Nach", 14), 15);
+            app.ranking.insert(createTeamItem("Chipiro brothers", 15), 16);
+
+        }
+
+
+
+
+
+
+
+
+
+
+        setTimeout(function () {
+            create_teams();
+        }, 500);
+    </script>
+
+</body>
+
+</html>

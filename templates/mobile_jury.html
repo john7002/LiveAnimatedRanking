@@ -5,22 +5,34 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Styles Bootstrap 5 -->
     <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+
+    <!-- jQuery (optionnel, seulement si nécessaire pour d'autres fonctionnalités) -->
     <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.3.1.min.js')}}"></script>
-    <title>Notation Jury</title>
+
+    <!-- Bootstrap 5 Bundle avec Popper intégré -->
+    <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js')}}"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 </head>
+
 
 <body>
 
 
-    <h1>Juge {{jeux}}</h1><img src="{{ url_for('static',filename='images/logo.jpg')}}" class="img-circle">
+    <h1>Juge {{jeux}}</h1>
 
 
     {% if success == 1 %}
     <div id="success_b" class="alert alert-success" role="alert">
         Envoi ok ! Classement updaté
     </div>
+
+
+
     <script>
         $(document).ready(function () {
             $("#success_b").delay(3000).fadeOut("slow");
@@ -36,23 +48,35 @@
         })
     </script>
     {% endif %}
-    <form action="{{ url_for('handle_data') }}" method="post">
-        <!--  <form action="http://0.0.0.0:5000/handle_data" method="post"> -->
-
+    <form action="{{ url_for('handle_data') }}" method="post" onsubmit="return handleSubmit(event)">
         <div class="form-group">
             <label for="exampleSelect2">Equipe</label>
             <select class="form-control" name="equipes">
-                <option value="0">Le sentier des AS</option>
-                <option value="1">Le bon, la brute et la pépite</option>
-                <option value="2">Bourricot</option>
-                <option value="3">Selle et éperons</option>
-                <option value="4">Tomahawk</option>
-                <option value="5">Le saloon des assoiffés</option>
-                <option value="6">Kwak waka</option>
-                <option value="7">Bandidos</option>
+                <option value="0">Les Daisy</option>
+                <option value="1">Les Golden Boy</option>
+                <option value="2">Les flappers</option>
+                <option value="3">Les wolf pack</option>
+                <option value="4">Les peaky blinders</option>
+                <option value="5">La black mafia</option>
+                <option value="6">Les Miami boys</option>
+                <option value="7">Les faucheurs de Long Island</option>
+                <option value="8">Charleston mob</option>
+                <option value="9">Les fantômes de gasby</option>
+                <option value="10">Baltimore crew</option>
+                <option value="11">Jazmafia</option>
+                <option value="12">Dickson blood</option>
+                <option value="13">Dycksy mafia</option>
+                <option value="14">Le gang d'Eddy Nach</option>
+                <option value="15">Chipiro brothers</option>
 
             </select>
         </div>
+
+
+
+
+
+
 
         <div class="form-group">
             <label for="exampleSelect3">Points</label>
@@ -67,6 +91,16 @@
                 <option>8</option>
                 <option>9</option>
                 <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+                <option>17</option>
+                <option>18</option>
+                <option>19</option>
+                <option>20</option>
 
             </select>
         </div>
@@ -76,7 +110,56 @@
 
 
     </form>
+    <!-- Modal de confirmation -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmationMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="confirmSubmit">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+
+            // Récupération des valeurs avec jQuery pour plus de fiabilité
+            const equipe = $('[name="equipes"] option:selected').text();
+            const points = $('[name="points"]').val();
+
+            // Mise à jour du message
+            $('#confirmationMessage').text(
+                `Vous allez donner ${points} points à l'équipe ${equipe}, êtes-vous certain ?`
+            );
+
+            // Initialisation du modal
+            const modal = new bootstrap.Modal('#confirmationModal', {
+                keyboard: false
+            });
+
+            // Gestionnaire de confirmation
+            $('#confirmSubmit').off('click').on('click', function () {
+                form.submit();
+                modal.hide();
+            });
+
+            // Affichage du modal
+            modal.show();
+
+            return false;
+        }
+    </script>
 
 
 

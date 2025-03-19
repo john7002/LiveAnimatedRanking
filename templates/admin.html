@@ -1,46 +1,62 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
-    <title>Notation Jury</title>
 
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+  <title>Notation Jury</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+  <script>
+    const socket = io.connect(window.location.origin);
+
+    socket.on('score_update', function (data) {
+      Toastify({
+        text: `Équipe ${data.equipe} a reçu ${data.points} points !`,
+        duration: 3000,
+        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+      }).showToast();
+    });
+  </script>
+
+</head>
+
 <body>
 
- <form action="{{ url_for('handle_admin') }}" method="post">
-<!--  <form action="http://0.0.0.0:5000/handle_data" method="post"> -->
+  <form action="{{ url_for('handle_admin') }}" method="post">
+    <!--  <form action="http://0.0.0.0:5000/handle_data" method="post"> -->
 
-  <div class="form-group">
-    <label for="exampleSelect2">Equipe</label>
-    <select class="form-control" name="equipes">
-      <option value="0">Inspecteur Gasdget</option>
-      <option value="1">Cat's Eye</option>
-      <option value="2">Sailor Moon</option>
-      <option value="3">Tom Sawyer</option>
-      <option value="4">Les Chevaliers du Zodiaque</option>
-      <option value="5">Ulysse 31</option>
-      <option value="6">Dragon Ball Z</option>
-      <option value="7">Goldorak</option>
-      <option value="8">Tortues Ninja</option>
-      <option value="9">Ken le Survivant</option>
-      <option value="10">Olive et Tom</option>
-      <option value="11">Candy</option>
-      <option value="12">Les Minipouces</option>
-      <option value="13">Ulysse 31</option>
-      <option value="14">Helene et les garcons</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="exampleSelect3">Points</label>
-    <input type="text" class="form-control" name="points">
-  </div>
+    <div class="form-group">
+      <label for="exampleSelect2">Equipe</label>
+      <select class="form-control" name="equipes">
+        <option value="0">Les Daisy</option>
+        <option value="1">Les golden boy</option>
+        <option value="2">Les flappers</option>
+        <option value="3">Les wolf pack</option>
+        <option value="4">Les peaky blinders</option>
+        <option value="5">La black mafia</option>
+        <option value="6">Les Miami boys</option>
+        <option value="7">Les faucheurs de Long Island</option>
+        <option value="8">Charleston mob</option>
+        <option value="9">Les fantômes de gasby</option>
+        <option value="10">Baltimore crew</option>
+        <option value="11">Jazmafia</option>
+        <option value="12">Dickson blood</option>
+        <option value="13">Dycksy mafia</option>
+        <option value="14">Le gang d'Eddy Nach</option>
+        <option value="15">Chipiro brothers</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="exampleSelect3">Points</label>
+      <input type="text" class="form-control" name="points">
+    </div>
 
-<input type = "submit"/>
+    <input type="submit" />
 
-</form>
+  </form>
 
 </body>
+
 </html>

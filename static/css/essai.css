@@ -1,0 +1,171 @@
+body {
+  background-image: url("../images/back.jpg");
+  font-size: 16px;
+}
+
+#ranking,
+.ranking-item {
+  background-color: rgba(243, 243, 243, 0.5);
+  border-radius: 1mm;
+}
+
+#ranking {
+  box-shadow: 2px 2px 4px black;
+  height: 0;
+  margin-left: 150px;
+  /*150px;*/
+  margin-right: 300px;
+  position: relative;
+  transition-duration: 0.3s;
+  transition-property: height;
+  transition-timing-function: ease-in-out;
+}
+
+.ranking-item {
+  box-shadow: 0 0 0 black;
+  height: 1mm;
+  /*8mm;*/
+  left: 0;
+  padding: 1mm 0;
+  /*2mm 0;*/
+  opacity: 1;
+  overflow: hidden;
+  position: absolute;
+  transition-duration: 0.3s;
+  transition-property: border-radius, box-shadow, height, left, opacity, top;
+  transition-timing-function: ease-in-out;
+  width: 100%;
+  z-index: auto;
+}
+
+
+
+
+/* Animation pour la montée */
+.ranking-item_moving-up {
+  transition: all 0.5s ease-in-out;
+  transform: translateY(-100%);
+}
+
+/* Animation pour la descente */
+.ranking-item_moving-down {
+  transition: all 0.5s ease-in-out;
+  transform: translateY(100%);
+}
+
+/* Couleur temporaire pendant le mouvement */
+.ranking-item.moving {
+  background-color: rgba(255, 165, 0, 0.3) !important;
+}
+
+
+
+
+
+
+.ranking-item_moving {
+  border-radius: 0.6mm;
+  /*1.2mm;*/
+  box-shadow: 4px 4px 10px black;
+  /*6px 6px 12px black;*/
+  left: -1mm;
+}
+
+.ranking-item-order,
+.ranking-item-userName {
+  float: left;
+  height: 100%;
+  margin: 0 2mm;
+  line-height: 12mm;
+  /*16mm;*/
+  top: 0;
+}
+
+.ranking-item-score {
+  float: left;
+  height: 100%;
+  margin: 0 2mm;
+  line-height: 12mm;
+  /*16mm;*/
+  top: 0;
+}
+
+.ranking-item-order {
+  background: #2f3e47;
+  border-radius: 50%;
+  color: white;
+  /* Début des modifications */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Fin des modifications */
+  text-align: center;
+  transition-duration: 0.3s;
+  font-weight: bold;
+  transition-property: background;
+  width: 18mm;
+
+  font-family: Caviar Dreams;
+}
+
+.ranking-item_movingDown .ranking-item-order {
+  background: #990000;
+}
+
+.ranking-item_movingUp .ranking-item-order {
+  background: #59dd05;
+}
+
+.ranking-item-userName {
+  font-size: 30px;
+  /*25px;*/
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 70%;
+  font-family: Caviar Dreams;
+}
+
+.ranking-item-score {
+  max-width: 18mm;
+  font-family: Caviar Dreams;
+  font-weight: bold;
+  font-size: 30px
+}
+
+@media screen and (max-width: 700px) {
+  body {
+    font-size: 3mm;
+  }
+
+  #ranking {
+    margin: 4mm;
+  }
+
+  .ranking-item {
+    height: 4mm;
+  }
+
+  /*9mm; }*/
+
+  .ranking-item-order,
+  .ranking-item-userName,
+  .ranking-item-score {
+    line-height: 9mm;
+  }
+
+  .ranking-item-order {
+    width: 9mm;
+  }
+
+  .ranking-item-userName {
+    font-size: 6mm;
+  }
+
+  /*4.5mm; }*/
+
+  .ranking-item-score {
+    max-width: 9mm;
+  }
+}
