@@ -5,6 +5,13 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Charger Toastify AVANT les scripts personnalisés -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
+
   <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
   <title>Notation Jury</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
@@ -18,7 +25,44 @@
         backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
       }).showToast();
     });
+
+
+
+
+    function resetDatabase() {
+      if (confirm("⚠️ ATTENTION ! Cette action est irréversible. Voulez-vous vraiment réinitialiser TOUS les scores ?")) {
+        fetch("{{ url_for('reset_database') }}", { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            Toastify({
+              text: "Réinitialisation réussie !",
+              duration: 3000,
+              backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+            }).showToast();
+          } else {
+            console.error('Erreur serveur:', response.status);
+          }
+        })
+        .catch(error => console.error('Erreur réseau:', error));
+      }
+    }
+
+
+
+
   </script>
+
+
+ 
+
+
+
+
 
 </head>
 
@@ -56,6 +100,15 @@
     <input type="submit" />
 
   </form>
+
+
+  <div class="mt-4 text-center">
+    <button onclick="resetDatabase()" 
+            class="btn btn-danger btn-lg">
+      Réinitialiser TOUS les scores
+    </button>
+  </div>
+
 
 </body>
 

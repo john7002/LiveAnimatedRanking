@@ -14,6 +14,7 @@ from flask import make_response
 from flask import render_template
 from flask_socketio import SocketIO, emit
 
+
 import requests
 
 # Flask app should start in global layout
@@ -22,8 +23,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
 socketio = SocketIO(app, cors_allowed_origins="*")#, async_mode='eventlet')
-
-
 
 
 dict_team = {"0": "Les Daisy","1": "Les Golden Boy", "2": "Les flappers", "3": "Les wolf pack", "4": "Les peaky blinders",
@@ -58,7 +57,7 @@ def handle_data():
         socketio.emit('score_update', {
             'equipe': equipes,
             'points': points
-        }, broadcast=True)  # Pas de '=True' ici
+        })#, broadcast=True)  # Pas de '=True' ici
         
         conn.execute("""
             INSERT INTO tournament(jeux,equipe,points) 
@@ -84,7 +83,7 @@ def handle_admin():
     socketio.emit('score_update', {
             'equipe': equipes,
             'points': points
-        }, broadcast=True)
+        })#, broadcast=True)
 
     conn.execute("""
         INSERT INTO tournament(jeux,equipe,points) VALUES(?,?,?)""", ("correction", dict_team[equipes], points))
@@ -132,7 +131,7 @@ def rebuild_from_db():
         socketio.emit('score_update', {
             'equipe': team_name,
             'points': row[1]
-        }, broadcast=True)
+        })#, broadcast=True)
 
         time.sleep(2)
 
@@ -150,6 +149,31 @@ def display_ranking():
 
 def send_score_update(equipe, points):
     socketio.emit('score_update', {'equipe': equipe, 'points': points})
+
+
+
+@app.route('/reset_database', methods=['POST'])
+def reset_database():
+    global conn
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tournament")
+        conn.commit()
+
+        # Envoyer une mise à jour explicite à ZÉRO pour toutes les équipes
+        for team_id in dict_team.keys():
+            socketio.emit('score_reset', {  # Nouvel événement spécifique
+                'equipe': team_id,
+                'points': 0
+            })#, broadcast=True)
+
+        return "Base de données et affichage réinitialisés !", 200
+    except Exception as e:
+        print(f"Erreur: {e}")
+        return "Échec de la réinitialisation", 500
+
+
+
 
 
 
